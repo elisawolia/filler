@@ -2,6 +2,26 @@
 #include "get_next_line.h"
 #include "filler.h"
 
+void	print_map(t_obj *map, FILE *fd)
+{
+	int i;
+	int j;
+
+	i = 0;
+	j = 0;
+	while (i < map->height)
+	{
+		j = 0;
+		while (j < map->width)
+		{
+			fprintf(fd, "%c ",map->fig[i][j]);
+			j++;
+		}
+		fprintf(fd, "\n");
+		i++;
+	}
+}
+
 void	set_player_info(t_filler *filler)
 {
 	char	*line;
@@ -38,7 +58,6 @@ void	set_map(t_obj *map)
 	char	*line;
 	int		i;
 
-
 	get_next_line(0, &line);
 	map->height = ft_atoi((const char*)line + 7);
 	map->width = ft_atoi((const char*)line + 7 + length_num(map->height));
@@ -46,29 +65,42 @@ void	set_map(t_obj *map)
 	get_next_line(0, &line);
 	ft_strdel(&line);
 	i = 0;
-	
 	if (!(map->fig = (char **)malloc(sizeof(char *) * (map->height + 1))))
 		exit(1);
+	i = 0;
 	while (i < map->height)
 	{
-		if (!(map->fig[i] = (char*)malloc(sizeof(char) * (map->width + 1))))
-			exit(1);
+		get_next_line(0, &line);
+		map->fig[i] = ft_strdup(line + 4);
+		free(line);
 		i++;
 	}
+}
 
-	map->fig[i] = NULL;
-	
+void	rew_map(t_obj *map)
+{
+	char	*line;
+	int		i;
+
+	get_next_line(0, &line);
+	ft_strdel(&line);
+	get_next_line(0, &line);
+	ft_strdel(&line);
 	i = 0;
-	while (i < map->height - 1)
+	int j = 0;
+	while (i < map->height)
 	{
 		get_next_line(0, &line);
-		map->fig[i] = ft_strdup((const char*)line + 4);
-		ft_strdel(&line);
+		j = 0;
+		while (j < map->width)
+		{
+			map->fig[i][j] = line[j + 4];
+			j++;
+		}
+		map->fig[i][j] = '\0';
+		free(line);
 		i++;
 	}
-
-//	fclose(fp);
-	
 }
 
 void	set_piece(t_obj *piece)
@@ -76,32 +108,20 @@ void	set_piece(t_obj *piece)
 	char	*line;
 	int		i;
 
-
-	ft_putnbr(8);
-	ft_putchar(' ');
-	ft_putnbr(2);
-	ft_putchar('\n');
 	get_next_line(0, &line);
-	piece->height = ft_atoi(*(&line + 5));
-	piece->width = ft_atoi(*(&line + 5 + length_num(piece->height)));
+	piece->height = ft_atoi(&line[5]);
+	piece->width = ft_atoi(&line[5 + length_num(piece->height)]);
 
 	ft_strdel(&line);
 	i = 0;
 	if (!(piece->fig = (char **)malloc(sizeof(char *) * (piece->height + 1))))
 		exit(1);
-
-	while (i < piece->height - 1)
-	{
-		if (!(piece->fig[i] = (char*)malloc(sizeof(char) * (piece->width + 1))))
-			exit(1);
-		i++;
-	}
 	
 	i = 0;
-	while (i < piece->height - 1)
+	while (i < piece->height)
 	{
 		get_next_line(0, &line);
-		piece->fig[i] = ft_strdup((&line[0]));
+		piece->fig[i] = ft_strdup(line);
 		ft_strdel(&line);
 		i++;
 	}
@@ -173,6 +193,29 @@ void	set_heat_map(t_filler *filler)
 	filler->heat->fig[i] = NULL;
 }
 
+void	rew_heat_map(t_filler *filler)
+{
+	int		i;
+	int		j;
+
+	i = 0;
+	while (i < filler->heat->height)
+	{
+		j = 0;
+		while (j < filler->heat->width)
+		{
+			if (filler->map->fig[i][j] == filler->me || filler->map->fig[i][j] == (filler->me + 32))
+				filler->heat->fig[i][j] = -1;
+			else if (filler->map->fig[i][j] == filler->opponent || filler->map->fig[i][j] == (filler->opponent + 32))
+				filler->heat->fig[i][j] = 0;
+			else
+				filler->heat->fig[i][j] = get_dist(filler, i, j);
+			j++;
+		}
+		i++;
+	}
+}
+
 void	print_heat_map(t_filler *filler, FILE *fd)
 {
 	int i;
@@ -234,26 +277,6 @@ void	print_grad_map(t_heat *grad, FILE *fd)
 	}
 }
 
-void	print_map(t_obj *map, FILE *fd)
-{
-	int i;
-	int j;
-
-	i = 0;
-	j = 0;
-	while (i < map->height)
-	{
-		j = 0;
-		while (j < map->width)
-		{
-			fprintf(fd, "%c ",map->fig[i][j]);
-			j++;
-		}
-		fprintf(fd, "\n");
-		i++;
-	}
-}
-
 void	set_filler(t_filler *filler)
 {
 	bzero(filler, sizeof(t_filler));
@@ -266,13 +289,9 @@ void	set_filler(t_filler *filler)
 	if (!(filler->heat = (t_heat*)ft_memalloc(sizeof(t_heat))))
 		exit(1);
 	bzero(filler->heat, sizeof(t_heat));
-
 	set_player_info(filler);
-
 	set_map(filler->map);
-
 	set_piece(filler->piece);
-
 	set_heat_map(filler);
 }
 
@@ -361,16 +380,13 @@ void	count_coord(t_heat	*grad)
 	FILE *fp;
 
 	fp = fopen("test.txt", "a+");
-	fprintf(fp, "%i %i\n\n", coord.y, coord.x);
-//	print_piece(filler->piece, fp);
-//	print_heat_map(filler, fp);
-	print_grad_map(grad, fp);
-	fclose(fp);
+	fprintf(fp, "1.RES %d %d\n\n",coord.y, coord.x);
+	fclose(fp); 
 
-/*	ft_putnbr(coord.y);
+	ft_putnbr(coord.y);
 	ft_putchar(' ');
 	ft_putnbr(coord.x);
-	ft_putchar('\n');*/
+	ft_putchar('\n');
 }
 
 void	place_piece(t_filler *filler)
@@ -380,44 +396,56 @@ void	place_piece(t_filler *filler)
 	if (!(grad = (t_heat*)ft_memalloc(sizeof(t_heat))))
 		exit(1);
 	bzero(grad, sizeof(t_heat));
-
 	set_grad(grad, filler);
-	
 	count_coord(grad);
-/*
-	FILE *fp;
+}
 
-	fp = fopen("test.txt", "a+");
-	fprintf(fp, "PLAYER %c\n",filler->me);
-	fprintf(fp, "MAP HEIGHT %i\n",filler->map->height);
-	fprintf(fp, "MAP WIDTH %i\n",filler->map->width);
-	fprintf(fp, "PIECE HEIGHT %i\n",filler->piece->height);
-	fprintf(fp, "PIECE WIDTH %i\n",filler->piece->width);
-	print_map(filler->map, fp);
-	print_piece(filler->piece, fp);
-	print_heat_map(filler, fp);
-	fprintf(fp, "\n\n");
-	fclose(fp);*/
+void	free_obj(t_obj *obj)
+{
+	int i;
 
-	
-	//to freee
+	i = 0;
+	while (i < obj->height)
+	{
+		ft_memdel((void**)&(obj->fig[i]));
+		i++;
+	}
+	ft_memdel((void**)&(obj->fig));
 }
 
 int		main(void)
 {
 	t_filler	*filler;
-//	char *line;
+	char *line;
 //	FILE *fp;
 
 	if (!(filler = (t_filler*)ft_memalloc(sizeof(t_filler))))
 		exit(1);
-
 	set_filler(filler);
-
 	place_piece(filler);
-//	while (1)
-//	{
-//	}
+	free_obj(filler->piece);
+	while (1)
+	{
+		get_next_line(0, &line);
+		free(line);
+
+
+
+		rew_map(filler->map);
+
+		rew_heat_map(filler);
+
+		
+		
+
+		set_piece(filler->piece);
+		
+		free_obj(filler->piece);
+		
+		
+
+		place_piece(filler);
+	}
 /*	fp = fopen("test.txt", "a+");
 	fprintf(fp, "PLAYER %c\n",filler->me);
 	fprintf(fp, "MAP HEIGHT %i\n",filler->map->height);

@@ -74,6 +74,14 @@ void				ft_putstr_fd(char const *s, int fd);
 void				ft_putendl_fd(char const *s, int fd);
 void				ft_putnbr_fd(int n, int fd);
 
+typedef struct      s_gnl
+{
+	char            *text;
+	char            *tempo;
+	struct s_gnl    *next;
+	int             fd;
+}                   t_gnl;
+
 typedef struct		s_list
 {
 	void			*content;
