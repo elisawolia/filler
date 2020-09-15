@@ -36,7 +36,7 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(OBJ))
 # compile
 CC = gcc
 HEADERS = -I includes
-LIB_HEADERS =  -I $(LIB_DIR)includes -I $(PRINTF_DIR)includes
+LIB_HEADERS =  -I $(LIB_DIR)includes 
 CFLAGS = -c -Wall -Werror -Wextra
 LIB = -L $(LIB_DIR) -lft
 
@@ -44,7 +44,7 @@ all: do_lib $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
-	@$(CC) $(CFLAGS) $(HEADERS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(HEADERS) $(LIB_HEADERS) -c $< -o $@
 
 $(NAME): $(OBJS)
 	@$(CC) $(OBJS) $(LIB) -o $(NAME)
