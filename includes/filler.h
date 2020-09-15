@@ -13,6 +13,9 @@
 #ifndef FILLER_H
 # define FILLER_H
 
+# include "libft.h"
+# include "get_next_line.h"
+
 typedef struct	s_point
 {
 	int			x;
@@ -23,14 +26,14 @@ typedef struct	s_obj
 {
 	int			height;
 	int			width;
-	char**		fig;
+	char		**fig;
 }				t_obj;
 
 typedef struct	s_heat
 {
 	int			height;
 	int			width;
-	int**		fig;
+	int			**fig;
 }				t_heat;
 
 typedef struct	s_filler
@@ -41,5 +44,35 @@ typedef struct	s_filler
 	t_obj		*piece;
 	t_heat		*heat;
 }				t_filler;
+
+/*
+**	free.c
+*/
+
+void			free_heat(t_heat *heat);
+void			free_obj(t_obj *obj);
+void			free_all(t_filler **filler);
+
+/*
+**	piece.c
+*/
+
+void			set_piece(t_obj *piece);
+int				place_piece(t_filler *filler);
+
+/*
+**	utils.c
+*/
+
+int				length_num(int a);
+int				mod(int a);
+void			print_res(t_point coord);
+
+/*
+**	heat.c
+*/
+
+void			set_heat_map(t_filler *f);
+void			rew_heat_map(t_filler *filler);
 
 #endif
