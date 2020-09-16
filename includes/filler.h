@@ -13,6 +13,10 @@
 #ifndef FILLER_H
 # define FILLER_H
 
+# define W width
+# define O opponent
+# define M map
+
 # include "libft.h"
 # include "get_next_line.h"
 

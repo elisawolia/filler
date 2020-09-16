@@ -43,26 +43,21 @@ static int	estimate_grad(t_obj *piece, t_heat *heat, int y, int x)
 	int		res;
 
 	can_set = -1;
-	i = 0;
+	i = -1;
 	res = 0;
-	while (i < piece->height)
+	while (++i < piece->height)
 	{
-		j = 0;
-		while (j < piece->width)
+		j = -1;
+		while (++j < piece->width)
 		{
-			if (piece->fig[i][j] == '*')
-			{
-				if (heat->fig[i + y][j + x] == 0
-					|| (heat->fig[i + y][j + x] == -1 && can_set == 1))
-					return (-1);
-				if (heat->fig[i + y][j + x] == -1)
-					can_set = 1;
-				else
-					res += heat->fig[i + y][j + x];
-			}
-			j++;
+			if ((piece->fig[i][j] == '*') && (heat->fig[i + y][j + x] == 0
+				|| (heat->fig[i + y][j + x] == -1 && can_set == 1)))
+				return (-1);
+			if (piece->fig[i][j] == '*' && heat->fig[i + y][j + x] == -1)
+				can_set = 1;
+			else if (piece->fig[i][j] == '*')
+				res += heat->fig[i + y][j + x];
 		}
-		i++;
 	}
 	return (can_set == 1 ? res : -1);
 }
@@ -98,14 +93,14 @@ static int	count_coord(t_heat *grad)
 	int		i;
 	int		j;
 
-	i = 0;
+	i = -1;
 	coord.x = 0;
 	coord.y = 0;
 	min = 2147483647;
-	while (i < grad->height)
+	while (++i < grad->height)
 	{
-		j = 0;
-		while (j < grad->width)
+		j = -1;
+		while (++j < grad->width)
 		{
 			if (grad->fig[i][j] < min && grad->fig[i][j] >= 0)
 			{
@@ -113,14 +108,11 @@ static int	count_coord(t_heat *grad)
 				coord.x = j;
 				coord.y = i;
 			}
-			j++;
 		}
-		i++;
 	}
 	print_res(coord);
-	if (min == 2147483647)
-		return (1);
-	return (0);
+	i = (min == 2147483647) ? 1 : 0;
+	return (i);
 }
 
 int			place_piece(t_filler *filler)

@@ -41,39 +41,36 @@ static int		get_dist(t_filler *filler, int y, int x)
 	return (min_dist);
 }
 
-void	set_heat_map(t_filler *f)
+void			set_heat_map(t_filler *f)
 {
 	int		i;
 	int		j;
 
-	f->heat->height = f->map->height;
-	f->heat->width = f->map->width;
+	f->heat->height = f->M->height;
+	f->heat->width = f->M->width;
 	if (!(f->heat->fig = (int **)malloc(sizeof(int *) * (f->heat->height + 1))))
 		exit(1);
-	i = 0;
-	while (i < f->heat->height)
+	i = -1;
+	while (++i < f->heat->height)
 	{
-		j = 0;
-		if (!(f->heat->fig[i] = (int *)malloc(sizeof(int) * (f->heat->width + 1))))
+		j = -1;
+		if (!(f->heat->fig[i] = (int *)malloc(sizeof(int) * (f->heat->W + 1))))
 			exit(1);
-		while (j < f->heat->width)
+		while (++j < f->heat->width)
 		{
-			if (f->map->fig[i][j] == f->me
-				|| f->map->fig[i][j] == (f->me + 32))
+			if (f->M->fig[i][j] == f->me
+				|| f->M->fig[i][j] == (f->me + 32))
 				f->heat->fig[i][j] = -1;
-			else if (f->map->fig[i][j] == f->opponent
-				|| f->map->fig[i][j] == (f->opponent + 32))
+			else if (f->M->fig[i][j] == f->O || f->M->fig[i][j] == (f->O + 32))
 				f->heat->fig[i][j] = 0;
 			else
 				f->heat->fig[i][j] = get_dist(f, i, j);
-			j++;
 		}
-		i++;
 	}
 	f->heat->fig[i] = NULL;
 }
 
-void	rew_heat_map(t_filler *filler)
+void			rew_heat_map(t_filler *filler)
 {
 	int		i;
 	int		j;
