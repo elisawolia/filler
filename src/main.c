@@ -27,7 +27,7 @@ void	set_player_info(t_filler *filler)
 		filler->me = 'X';
 		filler->opponent = 'O';
 	}
-	ft_strdel(&line);
+	free(line);
 }
 
 void	set_map(t_obj *map)
@@ -36,11 +36,11 @@ void	set_map(t_obj *map)
 	int		i;
 
 	get_next_line(0, &line);
-	map->height = ft_atoi((const char*)line + 7);
-	map->width = ft_atoi((const char*)line + 7 + length_num(map->height));
-	ft_strdel(&line);
+	map->height = ft_atoi(&line[7]);
+	map->width = ft_atoi(&line[7 + length_num(map->height)]);
+	free(line);
 	get_next_line(0, &line);
-	ft_strdel(&line);
+	free(line);
 	i = 0;
 	if (!(map->fig = (char **)malloc(sizeof(char *) * (map->height + 1))))
 		exit(1);
@@ -48,7 +48,7 @@ void	set_map(t_obj *map)
 	while (i < map->height)
 	{
 		get_next_line(0, &line);
-		map->fig[i] = ft_strdup(line + 4);
+		map->fig[i] = ft_strdup(&line[4]);
 		free(line);
 		i++;
 	}
@@ -61,7 +61,7 @@ void	rew_map(t_obj *map)
 	int		j;
 
 	get_next_line(0, &line);
-	ft_strdel(&line);
+	free(line);
 	i = 0;
 	j = 0;
 	while (i < map->height)

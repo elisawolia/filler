@@ -20,7 +20,7 @@ void		set_piece(t_obj *piece)
 	get_next_line(0, &line);
 	piece->height = ft_atoi(&line[5]);
 	piece->width = ft_atoi(&line[5 + length_num(piece->height)]);
-	ft_strdel(&line);
+	free(line);
 	i = 0;
 	if (!(piece->fig = (char **)malloc(sizeof(char *) * (piece->height + 1))))
 		exit(1);
@@ -29,7 +29,7 @@ void		set_piece(t_obj *piece)
 	{
 		get_next_line(0, &line);
 		piece->fig[i] = ft_strdup(line);
-		ft_strdel(&line);
+		free(line);
 		i++;
 	}
 	piece->fig[i] = NULL;
